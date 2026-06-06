@@ -70,26 +70,34 @@ export interface ReadResourceOptions {
 
 export interface ConnectOptions {
   /**
-   * Maximum number of OAuth re-establishment attempts for this connect call.
-   * `0` disables OAuth re-establishment entirely, but also bypasses the
-   * connection cache — prefer `disableOAuth: true` for cache-friendly
-   * OAuth suppression in long-running headless callers.
+   * Maximum number of OAuth authorization attempts for this connect call.
+   * Any defined value — including `0` — bypasses the connection cache: the
+   * returned context is not memoized. Prefer `disableOAuth: true` for
+   * cache-friendly OAuth suppression in long-running headless callers.
    */
   readonly maxOAuthAttempts?: number;
   /**
-   * Bypass the connection cache for this single call. The returned context
-   * is not stored and a subsequent `connect()` will not reuse it.
+   * Bypass the connection cache for this single call: the returned context
+   * is not stored. A pre-existing cached entry for this server is left in
+   * place (neither read nor evicted), so a subsequent `connect()` without
+   * `skipCache` will continue to reuse it.
    */
   readonly skipCache?: boolean;
   /**
-   * When `true`, use cached access tokens if they are available. Cached
-   * tokens whose `allowCachedAuth` posture does not match are evicted and
-   * the connection is re-established.
+   * When `true`, allow persisted access tokens to be used if available
+   * (tokens live on disk via `OAuthPersistence` and survive process
+   * restarts). A pre-existing cached connection whose `allowCachedAuth`
+   * or `disableOAuth` posture differs from the incoming request is
+   * closed and re-established; the on-disk tokens themselves are not
+   * affected by this eviction.
    */
   readonly allowCachedAuth?: boolean;
   /**
-   * Options forwarded to `createClientContext` when establishing the OAuth
-   * session for this connection (e.g. callback transport, redirect URL).
+   * Forwarded to the OAuth session when one is established. See
+   * `OAuthSessionOptions` for the available fields
+   * (`suppressBrowserLaunch`, `onAuthorizationUrl`) — typically used by
+   * headless callers to intercept the authorization URL instead of
+   * launching a browser.
    */
   readonly oauthSessionOptions?: OAuthSessionOptions;
   /**
