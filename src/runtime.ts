@@ -69,9 +69,28 @@ export interface ReadResourceOptions {
 }
 
 export interface ConnectOptions {
+  /**
+   * Maximum number of OAuth re-establishment attempts for this connect call.
+   * `0` disables OAuth re-establishment entirely, but also bypasses the
+   * connection cache — prefer `disableOAuth: true` for cache-friendly
+   * OAuth suppression in long-running headless callers.
+   */
   readonly maxOAuthAttempts?: number;
+  /**
+   * Bypass the connection cache for this single call. The returned context
+   * is not stored and a subsequent `connect()` will not reuse it.
+   */
   readonly skipCache?: boolean;
+  /**
+   * When `true`, use cached access tokens if they are available. Cached
+   * tokens whose `allowCachedAuth` posture does not match are evicted and
+   * the connection is re-established.
+   */
   readonly allowCachedAuth?: boolean;
+  /**
+   * Options forwarded to `createClientContext` when establishing the OAuth
+   * session for this connection (e.g. callback transport, redirect URL).
+   */
   readonly oauthSessionOptions?: OAuthSessionOptions;
   /**
    * When `true`, never start an OAuth flow for this server — equivalent
