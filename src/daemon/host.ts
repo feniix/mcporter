@@ -326,6 +326,7 @@ async function processRequest(
           const result = await runtime.callTool(params.server, params.tool, {
             args: params.args ?? {},
             timeoutMs: params.timeoutMs,
+            disableOAuth: params.disableOAuth,
           });
           markActivity(params.server, activity);
           if (loggable) {
@@ -353,6 +354,7 @@ async function processRequest(
             includeSchema: params.includeSchema,
             autoAuthorize: resolveDaemonListToolsAutoAuthorize(params, definition),
             allowCachedAuth: params.allowCachedAuth ?? true,
+            disableOAuth: params.disableOAuth,
           });
           markActivity(params.server, activity);
           if (loggable) {
@@ -375,7 +377,11 @@ async function processRequest(
           logEvent(logContext, `listResources start server=${params.server}`);
         }
         try {
-          const result = await runtime.listResources(params.server, params.params);
+          const result = await runtime.listResources(params.server, {
+            ...params.params,
+            allowCachedAuth: params.allowCachedAuth,
+            disableOAuth: params.disableOAuth,
+          });
           markActivity(params.server, activity);
           if (loggable) {
             logEvent(logContext, `listResources success server=${params.server}`);
@@ -397,7 +403,10 @@ async function processRequest(
           logEvent(logContext, `readResource start server=${params.server} uri=${params.uri}`);
         }
         try {
-          const result = await runtime.readResource(params.server, params.uri);
+          const result = await runtime.readResource(params.server, params.uri, {
+            allowCachedAuth: params.allowCachedAuth,
+            disableOAuth: params.disableOAuth,
+          });
           markActivity(params.server, activity);
           if (loggable) {
             logEvent(logContext, `readResource success server=${params.server}`);
