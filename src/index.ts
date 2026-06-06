@@ -1,6 +1,6 @@
 export type { CommandSpec, ServerDefinition } from './config.js';
 export { loadServerDefinitions } from './config.js';
-export type { OAuthAuthorizationRequest, OAuthSessionOptions } from './oauth.js';
+export type { OAuthAuthorizationRequest, OAuthSession, OAuthSessionOptions } from './oauth.js';
 export type { CallResult, ConnectionIssue, ImageContent } from './result-utils.js';
 export { createCallResult, describeConnectionIssue, wrapCallResult } from './result-utils.js';
 export type {
@@ -13,6 +13,7 @@ export type {
   RuntimeLogger,
   ServerToolInfo,
 } from './runtime.js';
+export type { ClientContext } from './runtime/transport.js';
 export { callOnce, createRuntime } from './runtime.js';
 export type { GeneratedRuntimeContext } from './generated-daemon-runtime.js';
 export { createGeneratedKeepAliveRuntime } from './generated-daemon-runtime.js';
