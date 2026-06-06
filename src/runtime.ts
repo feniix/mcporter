@@ -85,11 +85,13 @@ export interface ConnectOptions {
   readonly skipCache?: boolean;
   /**
    * When `true`, allow persisted access tokens to be used if available
-   * (tokens live on disk via `OAuthPersistence` and survive process
-   * restarts). A pre-existing cached connection whose `allowCachedAuth`
-   * or `disableOAuth` posture differs from the incoming request is
-   * closed and re-established; the on-disk tokens themselves are not
-   * affected by this eviction.
+   * (tokens live on disk and survive process restarts). A pre-existing
+   * cached connection whose `disableOAuth` posture differs from the
+   * incoming request, or whose `allowCachedAuth` was explicitly set to
+   * a different value, is closed and re-established; passing `undefined`
+   * here leaves an existing cached entry in place regardless of its
+   * stored value. The on-disk tokens themselves are not affected by
+   * this eviction.
    */
   readonly allowCachedAuth?: boolean;
   /**
