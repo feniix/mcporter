@@ -68,6 +68,41 @@ describe('vault command', () => {
     });
   });
 
+  it('preserves OAuth dynamic client registration metadata from stdin JSON', async () => {
+    await handleVault(runtimeFor(definition), ['set', 'calendar', '--stdin'], {
+      readStdin: async () =>
+        JSON.stringify({
+          tokens: {
+            access_token: 'dcr-token',
+            token_type: 'Bearer',
+          },
+          clientInfo: {
+            client_id: 'dcr-client',
+            redirect_uris: ['https://calendar.example/callback'],
+            grant_types: ['authorization_code'],
+            response_types: ['code'],
+            token_endpoint_auth_method: 'none',
+            client_id_issued_at: 1_754_611_200,
+            client_secret_expires_at: 0,
+            provider_metadata: { tenant: 'calendar' },
+          },
+        }),
+    });
+
+    await expect(loadVaultEntry(definition)).resolves.toMatchObject({
+      clientInfo: {
+        client_id: 'dcr-client',
+        redirect_uris: ['https://calendar.example/callback'],
+        grant_types: ['authorization_code'],
+        response_types: ['code'],
+        token_endpoint_auth_method: 'none',
+        client_id_issued_at: 1_754_611_200,
+        client_secret_expires_at: 0,
+        provider_metadata: { tenant: 'calendar' },
+      },
+    });
+  });
+
   it('seeds OAuth credentials from stdin JSON', async () => {
     await handleVault(runtimeFor(definition), ['set', 'calendar', '--stdin'], {
       readStdin: async () =>
