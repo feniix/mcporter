@@ -6,10 +6,6 @@
 
 - Authenticate OpenClaw extension-backed Chrome control with Browser Relay Authentication v2 over one retained loopback socket from HMAC challenge through CDP upgrade, never transmitting the host key or retrying legacy relay auth, while preserving configurable `prefer` / `require` / `off` routing and the OS-protected one-use child handoff.
 
-### OAuth
-
-- Accept standard dynamic client registration arrays and timestamps in `mcporter vault set` payloads while preserving provider-specific metadata.
-
 ### Daemon
 
 - Invalidate keep-alive Chrome DevTools state when relay policy, URL, timeout, OpenClaw credential paths, or the derived relay `keyId` change, keep `require` fail-closed across retries, and expose the last safe relay decision in `mcporter daemon status`.
