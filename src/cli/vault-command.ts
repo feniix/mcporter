@@ -155,6 +155,7 @@ const OAUTH_CLIENT_STRING_FIELDS = [
   'client_id',
   'client_secret',
   'token_endpoint_auth_method',
+  'application_type',
   'client_name',
   'client_uri',
   'logo_uri',
