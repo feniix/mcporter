@@ -137,6 +137,36 @@ describe('vault command', () => {
     });
   });
 
+  // A payload carries no issuance timestamp, so `expires_in` can only be read
+  // as lifetime remaining at import. Credentials imported later than they were
+  // issued must therefore say so with an absolute expiry, and that value has to
+  // survive normalization untouched — otherwise a stale token is stored as live
+  // and refreshable_bearer sends it instead of refreshing.
+  for (const alias of ['expires_at', 'expiresAt'] as const) {
+    it(`keeps an explicit ${alias} from a delayed import`, async () => {
+      vi.spyOn(Date, 'now').mockReturnValue(1_754_611_200_000);
+      // Issued 55 minutes before this import: 5 minutes of the hour remain.
+      const trueExpiry = 1_754_611_200 + 300;
+
+      await handleVault(runtimeFor(definition), ['set', 'calendar', '--stdin'], {
+        readStdin: async () =>
+          JSON.stringify({
+            tokens: {
+              access_token: 'delayed-token',
+              token_type: 'Bearer',
+              expires_in: 3600,
+              [alias]: trueExpiry,
+            },
+          }),
+      });
+
+      const entry = await loadVaultEntry(definition);
+      expect(entry?.tokens).toMatchObject({ access_token: 'delayed-token', [alias]: trueExpiry });
+      // The relative reading would have stored now + 3600 and hidden the expiry.
+      expect(entry?.tokens?.expires_at ?? entry?.tokens?.expiresAt).not.toBe(1_754_614_800);
+    });
+  }
+
   it('clears the server vault entry', async () => {
     await handleVault(runtimeFor(definition), ['set', 'calendar', '--stdin'], {
       readStdin: async () => JSON.stringify({ tokens: { access_token: 'token', token_type: 'Bearer' } }),
