@@ -113,13 +113,16 @@ describe('vault command', () => {
     });
   });
 
-  it('seeds OAuth credentials from stdin JSON', async () => {
+  it('seeds OAuth credentials from stdin JSON and normalizes relative expiry', async () => {
+    vi.spyOn(Date, 'now').mockReturnValue(1_754_611_200_000);
+
     await handleVault(runtimeFor(definition), ['set', 'calendar', '--stdin'], {
       readStdin: async () =>
         JSON.stringify({
           tokens: {
             access_token: 'stdin-token',
             token_type: 'Bearer',
+            expires_in: 3600,
           },
         }),
     });
@@ -128,28 +131,6 @@ describe('vault command', () => {
       tokens: {
         access_token: 'stdin-token',
         token_type: 'Bearer',
-      },
-    });
-  });
-
-  it('converts a relative token lifetime to an absolute expiry', async () => {
-    vi.spyOn(Date, 'now').mockReturnValue(1_754_611_200_000);
-
-    await handleVault(runtimeFor(definition), ['set', 'calendar', '--stdin'], {
-      readStdin: async () =>
-        JSON.stringify({
-          tokens: {
-            access_token: 'relative-expiry-token',
-            token_type: 'Bearer',
-            refresh_token: 'refresh-token',
-            expires_in: 3600,
-          },
-        }),
-    });
-
-    await expect(loadVaultEntry(definition)).resolves.toMatchObject({
-      tokens: {
-        access_token: 'relative-expiry-token',
         expires_in: 3600,
         expires_at: 1_754_614_800,
       },
