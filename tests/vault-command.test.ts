@@ -160,10 +160,13 @@ describe('vault command', () => {
           }),
       });
 
-      const entry = await loadVaultEntry(definition);
-      expect(entry?.tokens).toMatchObject({ access_token: 'delayed-token', [alias]: trueExpiry });
+      // Both aliases are persistence-only, so they are not on OAuthTokens.
+      const stored = (await loadVaultEntry(definition))?.tokens as
+        | { access_token?: string; expires_at?: number; expiresAt?: number }
+        | undefined;
+      expect(stored?.access_token).toBe('delayed-token');
       // The relative reading would have stored now + 3600 and hidden the expiry.
-      expect(entry?.tokens?.expires_at ?? entry?.tokens?.expiresAt).not.toBe(1_754_614_800);
+      expect(stored?.expires_at ?? stored?.expiresAt).toBe(trueExpiry);
     });
   }
 
